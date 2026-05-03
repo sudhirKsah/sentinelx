@@ -1,6 +1,6 @@
 # 🛡️ SentinelX: Multi-Cloud & Endpoint Security SaaS
 
-![SentinelX Banner](https://via.placeholder.com/1200x300/0f172a/3b82f6?text=SentinelX+Security+Platform)
+<!-- ![SentinelX Banner](https://via.placeholder.com/1200x300/0f172a/3b82f6?text=SentinelX+Security+Platform) -->
 
 **SentinelX** is an AI-powered, multi-tenant security monitoring platform designed to provide unified threat detection, rapid incident response, and compliance auditing across both cloud infrastructure (AWS/GCP/Azure) and Linux endpoints.
 
