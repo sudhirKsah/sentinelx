@@ -3,6 +3,7 @@
 import os
 import json
 import base64
+import socket
 from pathlib import Path
 from typing import Dict, Any
 
@@ -30,7 +31,7 @@ def load_config() -> Dict[str, Any]:
         'agent_id': os.getenv('SENTINELX_AGENT_ID', ''),
         
         # Agent Configuration
-        'hostname': os.getenv('HOSTNAME', 'unknown'),
+        'hostname': os.getenv('HOSTNAME', socket.gethostname()),
         'os_type': os.getenv('OS_TYPE', 'linux'),
         'agent_version': '0.1.0',
         

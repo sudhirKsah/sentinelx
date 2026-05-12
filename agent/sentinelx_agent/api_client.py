@@ -33,7 +33,7 @@ class APIClient:
     def register_agent(self) -> Optional[Dict[str, Any]]:
         """Register agent with backend"""
         try:
-            endpoint = f"{self.api_url}/api/v1/orgs/{self.org_id}/agents/register"
+            endpoint = f"{self.api_url}/api/v1/agents/register"
             payload = {
                 "hostname": self.config.get('hostname'),
                 "os_type": self.config.get('os_type'),
@@ -69,7 +69,7 @@ class APIClient:
     def send_heartbeat(self) -> bool:
         """Send heartbeat to backend"""
         try:
-            endpoint = f"{self.api_url}/api/v1/orgs/{self.org_id}/agents/{self.agent_id}/heartbeat"
+            endpoint = f"{self.api_url}/api/v1/agents/{self.agent_id}/heartbeat"
             headers = {
                 "Authorization": f"Bearer {self.api_key}",
                 "Content-Type": "application/json"
@@ -100,7 +100,7 @@ class APIClient:
             return True
             
         try:
-            endpoint = f"{self.api_url}/api/v1/orgs/{self.org_id}/events"
+            endpoint = f"{self.api_url}/api/v1/events"
             headers = {
                 "Authorization": f"Bearer {self.api_key}",
                 "Content-Type": "application/json"
@@ -134,7 +134,7 @@ class APIClient:
     def get_baseline(self, event_type: str) -> Optional[Dict[str, Any]]:
         """Get baseline data for comparison"""
         try:
-            endpoint = f"{self.api_url}/api/v1/orgs/{self.org_id}/agents/{self.agent_id}/baseline/{event_type}"
+            endpoint = f"{self.api_url}/api/v1/agents/{self.agent_id}/baseline/{event_type}"
             headers = {
                 "Authorization": f"Bearer {self.api_key}"
             }
