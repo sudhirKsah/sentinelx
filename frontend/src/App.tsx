@@ -8,6 +8,7 @@ import MainLayout from './components/Layout/MainLayout';
 // Pages
 import Login from './pages/Login';
 import Overview from './pages/Overview';
+import Events from './pages/Events';
 import Alerts from './pages/Alerts';
 import Incidents from './pages/Incidents';
 import Infrastructure from './pages/Infrastructure';
@@ -37,6 +38,7 @@ export default function App() {
         <Route path="/" element={<ProtectedRoute><MainLayout /></ProtectedRoute>}>
           <Route index element={<Navigate to="/overview" replace />} />
           <Route path="overview" element={<Overview />} />
+          <Route path="events" element={<Events />} />
           <Route path="alerts" element={<Alerts />} />
           <Route path="incidents" element={<Incidents />} />
           <Route path="infrastructure" element={<Infrastructure />} />

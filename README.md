@@ -23,6 +23,10 @@ Built as a highly scalable microservice architecture, SentinelX leverages the **
     *   Suspicious User Activity (SSH)
 *   **🏢 Multi-Tenant Architecture:** Securely manages multiple organizations, isolating users, agents, and alerts.
 *   **⚡ Real-Time Dashboard:** A gorgeous, dark-mode React UI powered by WebSockets for sub-second alert streaming.
+*   **⚙️ Persistent Cloud Settings:** Securely stores AWS integration keys and email preferences in PostgreSQL.
+*   **🔄 Background Polling Daemon:** Continuously syncs AWS logs every 3 minutes for automated threat detection without manual intervention.
+*   **📧 Intelligent Email Alerting:** Integrates with Resend to instantly dispatch email notifications for high/critical incidents and user invitations.
+*   **📈 Real-time AI Analytics:** Dashboard displaying dynamic 7-day average AI confidence scores and behavioral risk deviations based on actual historical database logs.
 
 ---
 
@@ -76,7 +80,7 @@ This is the fastest way to get the entire microservice stack running.
    ```env
    # Database Configuration
    DB_NAME=sentinelx
-   DB_USER=postgres
+   DB_USER=sentinelx
    DB_PASSWORD=your_secure_password
    DB_PORT=5432
 
@@ -111,10 +115,11 @@ If you prefer running the services directly on your host machine:
 *   PostgreSQL 15+
 
 #### 1. Database Setup
-Ensure PostgreSQL is running locally. You must create the database and set the user password to exactly match what is in your `.env` file.
+Ensure PostgreSQL is running locally. You must create the database, create the user, and set the user password to exactly match what is in your `.env` file.
 ```bash
-sudo -u postgres psql -c "ALTER USER postgres PASSWORD 'your_secure_password';"
-sudo -u postgres psql -c "CREATE DATABASE sentinelx;"
+sudo -u postgres psql -c "CREATE USER sentinelx WITH PASSWORD 'sentinelx';"
+sudo -u postgres psql -c "CREATE DATABASE sentinelx OWNER sentinelx;"
+sudo -u postgres psql -c "GRANT ALL PRIVILEGES ON DATABASE sentinelx TO sentinelx;"
 ```
 
 #### 2. Environment Variables
