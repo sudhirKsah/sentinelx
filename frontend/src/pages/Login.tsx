@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import { useAuthStore } from '../store/authStore';
+import { useNavigate } from 'react-router-dom';
 
 export default function Login() {
+  const navigate = useNavigate();
   const { login } = useAuthStore();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -23,9 +25,10 @@ export default function Login() {
         const data = await response.json();
         localStorage.setItem('token', data.access_token);
         useAuthStore.getState().setUser(data.user);
-        window.location.reload();
+        navigate('/overview');
       } else {
         await login(email, password);
+        navigate('/overview');
       }
     } catch (err: any) {
       setError(err.message || 'Authentication failed');

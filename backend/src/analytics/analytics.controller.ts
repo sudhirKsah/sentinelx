@@ -11,4 +11,9 @@ export class AnalyticsController {
   async getDashboardStats(@Request() req: any) {
     return this.analyticsService.getDashboardStats(req.user.orgId);
   }
+
+  @Get('ai-insights')
+  async getAiAnalytics(@Request() req: any) {
+    return this.analyticsService.getAiAnalytics(req.user.orgId);
+  }
 }

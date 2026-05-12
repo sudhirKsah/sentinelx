@@ -12,6 +12,7 @@ import { CorrelationModule } from './correlation/correlation.module';
 import { AlertsModule } from './alerts/alerts.module';
 import { AnalyticsModule } from './analytics/analytics.module';
 import { HealthModule } from './health/health.module';
+import { MailModule } from './mail/mail.module';
 
 @Module({
   imports: [
@@ -25,8 +26,8 @@ import { HealthModule } from './health/health.module';
         type: 'postgres',
         host: configService.get('DB_HOST', 'localhost'),
         port: configService.get('DB_PORT', 5432),
-        username: configService.get('DB_USER', 'postgres'),
-        password: configService.get('DB_PASSWORD', 'password'),
+        username: configService.get('DB_USER', 'sentinelx'),
+        password: configService.get('DB_PASSWORD', 'sentinelx'),
         database: configService.get('DB_NAME', 'sentinelx'),
         entities: ['dist/**/*.entity.js'],
         migrations: ['dist/database/migrations/*.js'],
@@ -45,6 +46,7 @@ import { HealthModule } from './health/health.module';
     AlertsModule,
     AnalyticsModule,
     HealthModule,
+    MailModule,
   ],
   controllers: [],
 })

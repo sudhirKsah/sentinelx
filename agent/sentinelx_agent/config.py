@@ -41,7 +41,7 @@ def load_config() -> Dict[str, Any]:
         
         # Logging
         'log_level': os.getenv('LOG_LEVEL', 'INFO'),
-        'log_file': os.getenv('LOG_FILE', '/var/log/sentinelx-agent.log'),
+        'log_file': os.getenv('LOG_FILE', 'logs/sentinelx-agent.log'),
         
         # SSL/TLS
         'verify_ssl': os.getenv('VERIFY_SSL', 'true').lower() == 'true',
@@ -53,7 +53,7 @@ def load_config() -> Dict[str, Any]:
     }
     
     # Load from config file if exists
-    config_file = Path('/etc/sentinelx/agent.json')
+    config_file = Path(os.getenv('AGENT_CONFIG_FILE', 'config/agent.json'))
     if config_file.exists():
         try:
             with open(config_file) as f:

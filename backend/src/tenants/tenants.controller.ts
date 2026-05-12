@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, UseGuards, Request } from '@nestjs/common';
+import { Controller, Get, Post, Patch, Body, UseGuards, Request } from '@nestjs/common';
 import { TenantsService } from './tenants.service';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 
@@ -15,5 +15,10 @@ export class TenantsController {
   @Post('invite')
   async inviteUser(@Request() req: any, @Body() body: { email: string }) {
     return this.tenantsService.inviteUser(req.user.orgId, body.email);
+  }
+
+  @Patch('me/settings')
+  async updateSettings(@Request() req: any, @Body() body: any) {
+    return this.tenantsService.updateSettings(req.user.orgId, body);
   }
 }

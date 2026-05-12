@@ -47,6 +47,7 @@
     "pino-pretty": "^10.2.0",
     "qrcode": "^1.5.3",
     "redis": "^4.6.7",
+    "resend": "^6.12.3",
     "socket.io": "^4.6.1",
     "socket.io-client": "^4.6.1",
     "speakeasy": "^2.0.0",

@@ -24,6 +24,22 @@ export default function Incidents() {
     fetchIncidents();
   }, [token]);
 
+  const handleStatusChange = async (incidentId: string, newStatus: string) => {
+    try {
+      await fetch(`http://localhost:3000/api/v1/incidents/${incidentId}/status`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({ status: newStatus })
+      });
+      fetchIncidents();
+    } catch (err) {
+      console.error('Failed to update status:', err);
+    }
+  };
+
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
@@ -80,9 +96,16 @@ export default function Incidents() {
                     <p className="text-slate-500 text-xs line-clamp-2 mb-4">{incident.description}</p>
                     
                     <div className="flex justify-between items-center border-t border-slate-700 pt-3 mt-auto">
-                      <div className="flex -space-x-2">
-                        <div className="w-6 h-6 rounded-full bg-blue-600 flex items-center justify-center text-[10px] font-bold border border-slate-800">S</div>
-                      </div>
+                      <select
+                        value={incident.status}
+                        onChange={(e) => handleStatusChange(incident.id, e.target.value)}
+                        onClick={(e) => e.stopPropagation()}
+                        className="bg-slate-900 border border-slate-700 text-xs text-slate-300 rounded px-2 py-1 outline-none focus:border-blue-500"
+                      >
+                        <option value="open">Open</option>
+                        <option value="investigating">Investigating</option>
+                        <option value="resolved">Resolved</option>
+                      </select>
                       <span className="text-[10px] text-slate-500">{new Date(incident.created_at).toLocaleDateString()}</span>
                     </div>
                   </div>

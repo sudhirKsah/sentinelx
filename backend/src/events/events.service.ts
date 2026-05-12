@@ -19,7 +19,7 @@ export class EventsService {
     private readonly alertsService: AlertsService,
   ) {
     // Initialize Gemini AI Client
-    this.ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY || 'mock_key' });
+    this.ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
   }
 
   async ingestEvent(data: any, orgId: string) {
@@ -84,7 +84,7 @@ export class EventsService {
         `;
 
         const response = await this.ai.models.generateContent({
-            model: 'gemini-2.5-flash',
+            model: 'gemini-flash-latest',
             contents: prompt,
         });
 
@@ -114,7 +114,6 @@ export class EventsService {
       title: `AI Detection: ${event.title}`,
       description: `[AI Confidence: ${confidence}%] ${reasoning} | Original Event: ${event.description}`,
       severity: event.severity, // Inherit severity from the raw event
-      sourceEventId: event.id,
     }, event.org_id);
   }
 }

@@ -119,7 +119,7 @@ export default function Overview() {
                       <div className="flex justify-between items-start mb-1">
                         <p className="text-sm font-semibold text-slate-200 truncate pr-4">{event.title}</p>
                         <span className="text-xs text-slate-500 whitespace-nowrap font-mono bg-slate-900 px-2 py-1 rounded-md">
-                          {new Date(event.timestamp).toLocaleTimeString()}
+                          {new Date(event.timestamp).toLocaleString()}
                         </span>
                       </div>
                       <p className="text-sm text-slate-400 truncate group-hover:whitespace-normal group-hover:text-clip transition-all">{event.description}</p>

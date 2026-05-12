@@ -13,7 +13,7 @@ def setup_logger(name: str, log_file: str = None, level: str = 'INFO') -> loggin
     
     # Ensure log directory exists
     if log_file is None:
-        log_file = os.getenv('LOG_FILE', '/var/log/sentinelx-agent.log')
+        log_file = os.getenv('LOG_FILE', 'logs/sentinelx-agent.log')
     
     log_dir = Path(log_file).parent
     log_dir.mkdir(parents=True, exist_ok=True)
