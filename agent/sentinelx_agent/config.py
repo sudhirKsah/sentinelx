@@ -63,7 +63,7 @@ def load_config() -> Dict[str, Any]:
         'ssl_cert_path': os.getenv('SSL_CERT_PATH', ''),
         
         # Batch Configuration
-        'batch_size': int(os.getenv('BATCH_SIZE', '100')),
+        'batch_size': int(os.getenv('BATCH_SIZE', '1')),
         'batch_timeout': int(os.getenv('BATCH_TIMEOUT', '30')),  # seconds
     }
     

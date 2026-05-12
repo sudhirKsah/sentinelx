@@ -6,6 +6,8 @@ Monitors: File integrity, process execution, user activity, network connections
 
 import os
 import sys
+import time
+import threading
 import logging
 from pathlib import Path
 
@@ -38,8 +40,19 @@ class SentinelXAgent:
         self.monitors.append(UserActivityMonitor(self.config, self.api_client))
         self.monitors.append(NetworkMonitor(self.config, self.api_client))
 
+    def _heartbeat_loop(self):
+        """Background thread to send heartbeats"""
+        while self.running:
+            self.api_client.send_heartbeat()
+            # Sleep for 60 seconds, checking every second if we should exit
+            for _ in range(60):
+                if not self.running:
+                    break
+                time.sleep(1)
+
     def start(self):
         """Start all monitoring threads"""
+        self.running = True
         logger.info("🚀 Starting SentinelX Agent...")
         
         # Register agent with backend
@@ -52,6 +65,11 @@ class SentinelXAgent:
             for monitor in self.monitors:
                 monitor.start()
                 logger.info(f"✅ Started {monitor.__class__.__name__}")
+            
+            # Start heartbeat thread
+            self.heartbeat_thread = threading.Thread(target=self._heartbeat_loop, daemon=True)
+            self.heartbeat_thread.start()
+            logger.info("✅ Started Heartbeat Monitor")
             
             # Keep the agent running
             for monitor in self.monitors:
@@ -66,6 +84,7 @@ class SentinelXAgent:
 
     def stop(self):
         """Stop all monitors"""
+        self.running = False
         for monitor in self.monitors:
             monitor.stop()
             logger.info(f"Stopped {monitor.__class__.__name__}")
