@@ -16,35 +16,36 @@ echo ">> Modifying critical system file (/etc/hosts proxy simulation)..."
 mkdir -p /home/$USER/.hidden_config
 echo "malicious_payload=1" > /home/$USER/.hidden_config/backdoor.sh
 chmod +x /home/$USER/.hidden_config/backdoor.sh
-sleep 1
 echo ">> Modified /home/$USER/.hidden_config/backdoor.sh"
 echo ""
-sleep 3
 
 # 2. Triggering Process Monitor (Suspicious Process)
 echo "[2/4] Simulating Suspicious Process Execution..."
 echo ">> Running 'nmap' (Network Scanner)..."
 # We just rename bash to nmap and run it for 5 seconds to trick the process monitor
 cp /bin/bash /tmp/nmap
-/tmp/nmap -c "sleep 5" &
+/tmp/nmap -c "sleep 80" &
 sleep 1
 echo ">> Running 'nc' (Netcat / Reverse Shell)..."
 cp /bin/bash /tmp/nc
-/tmp/nc -c "sleep 5" &
+/tmp/nc -c "sleep 80" &
 echo ""
-sleep 5 # Wait for the process monitor interval
 
 # 3. Triggering Network Monitor (Unauthorized Port Binding)
 echo "[3/4] Simulating Unauthorized Network Binding..."
 echo ">> Opening a suspicious high port listener (simulating C2 server)..."
-# We use python to quickly spin up a dummy server on port 4444 (common metasploit port)
 python3 -m http.server 4444 > /dev/null 2>&1 &
 DUMMY_PID=$!
-sleep 5
+echo ">> Malicious listener open on port 4444."
+echo ""
+
+echo "⏳ Waiting for 70 seconds to ensure SentinelX Agent polling intervals (FIM, Process, Network) catch these artifacts..."
+sleep 70
+echo ">> Artifacts detected! Proceeding to cleanup."
+echo ""
+
 kill $DUMMY_PID
 echo ">> Closed malicious listener."
-echo ""
-sleep 3
 
 # 4. Cleanup
 echo "[4/4] Cleaning up simulated artifacts..."

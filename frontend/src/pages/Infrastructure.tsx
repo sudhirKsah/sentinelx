@@ -100,20 +100,28 @@ export default function Infrastructure() {
               <div>
                 <p className="text-sm text-slate-300 mb-2">1. Download the agent to your Linux host:</p>
                 <div className="bg-black rounded-lg p-4 font-mono text-xs text-green-400 overflow-x-auto">
-                  git clone https://github.com/your-username/SentinelX.git<br/>
-                  cd SentinelX/agent
+                  git clone https://github.com/sudhirksah/sentinelx.git<br/>
+                  cd sentinelx/agent
                 </div>
               </div>
 
               <div>
-                <p className="text-sm text-slate-300 mb-2">2. Install python dependencies:</p>
+                <p className="text-sm text-slate-300 mb-2">2. Setup virtual environment (use python3 for python 3):</p>
+                <div className="bg-black rounded-lg p-4 font-mono text-xs text-green-400">
+                  python -m venv venv<br/>
+                  source venv/bin/activate
+                </div>
+              </div>
+
+              <div>
+                <p className="text-sm text-slate-300 mb-2">4. Install python dependencies:</p>
                 <div className="bg-black rounded-lg p-4 font-mono text-xs text-green-400">
                   pip install -r requirements.txt
                 </div>
               </div>
               
               <div>
-                <p className="text-sm text-slate-300 mb-2">3. Export your organization token:</p>
+                <p className="text-sm text-slate-300 mb-2">5. Export your organization token:</p>
                 <div className="bg-black rounded-lg p-4 font-mono text-xs text-green-400 overflow-x-auto">
                   export SENTINELX_TOKEN="{token}"<br/>
                   export SENTINELX_API_URL="http://localhost:3000"

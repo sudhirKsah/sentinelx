@@ -6,6 +6,7 @@ import { useAuthStore } from './store/authStore';
 import MainLayout from './components/Layout/MainLayout';
 
 // Pages
+import Landing from './pages/Landing';
 import Login from './pages/Login';
 import Overview from './pages/Overview';
 import Events from './pages/Events';
@@ -32,22 +33,22 @@ export default function App() {
   return (
     <BrowserRouter>
       <Routes>
+        <Route path="/" element={<Landing />} />
         <Route path="/login" element={<Login />} />
         
         {/* Protected Routes wrapped in MainLayout */}
-        <Route path="/" element={<ProtectedRoute><MainLayout /></ProtectedRoute>}>
-          <Route index element={<Navigate to="/overview" replace />} />
-          <Route path="overview" element={<Overview />} />
-          <Route path="events" element={<Events />} />
-          <Route path="alerts" element={<Alerts />} />
-          <Route path="incidents" element={<Incidents />} />
-          <Route path="infrastructure" element={<Infrastructure />} />
-          <Route path="rules" element={<Rules />} />
-          <Route path="users" element={<Users />} />
-          <Route path="containers" element={<Containers />} />
-          <Route path="analytics" element={<AiAnalytics />} />
-          <Route path="compliance" element={<Compliance />} />
-          <Route path="settings" element={<Settings />} />
+        <Route element={<ProtectedRoute><MainLayout /></ProtectedRoute>}>
+          <Route path="/overview" element={<Overview />} />
+          <Route path="/events" element={<Events />} />
+          <Route path="/alerts" element={<Alerts />} />
+          <Route path="/incidents" element={<Incidents />} />
+          <Route path="/infrastructure" element={<Infrastructure />} />
+          <Route path="/rules" element={<Rules />} />
+          <Route path="/users" element={<Users />} />
+          <Route path="/containers" element={<Containers />} />
+          <Route path="/analytics" element={<AiAnalytics />} />
+          <Route path="/compliance" element={<Compliance />} />
+          <Route path="/settings" element={<Settings />} />
         </Route>
       </Routes>
     </BrowserRouter>

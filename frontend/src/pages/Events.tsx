@@ -5,6 +5,10 @@ export default function Events() {
   const { token } = useAuthStore();
   const [events, setEvents] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  
+  // Filter states
+  const [sourceFilter, setSourceFilter] = useState('all');
+  const [severityFilter, setSeverityFilter] = useState('all');
 
   useEffect(() => {
     fetch('http://localhost:3000/api/v1/events', {
@@ -22,9 +26,31 @@ export default function Events() {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold text-white tracking-tight">All Events</h1>
-        <button className="bg-slate-800 hover:bg-slate-700 text-white px-4 py-2 rounded-lg text-sm font-medium border border-slate-700 transition-all">
-          Export CSV
-        </button>
+        <div className="flex space-x-4">
+          <select 
+            className="bg-slate-800 text-white px-3 py-2 rounded-lg border border-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            value={sourceFilter}
+            onChange={(e) => setSourceFilter(e.target.value)}
+          >
+            <option value="all">All Sources</option>
+            <option value="AWS CloudTrail">AWS CloudTrail</option>
+            <option value="Linux Agent">Linux Agent</option>
+          </select>
+          <select 
+            className="bg-slate-800 text-white px-3 py-2 rounded-lg border border-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            value={severityFilter}
+            onChange={(e) => setSeverityFilter(e.target.value)}
+          >
+            <option value="all">All Severities</option>
+            <option value="critical">Critical</option>
+            <option value="high">High</option>
+            <option value="medium">Medium</option>
+            <option value="info">Info</option>
+          </select>
+          <button className="bg-slate-800 hover:bg-slate-700 text-white px-4 py-2 rounded-lg text-sm font-medium border border-slate-700 transition-all">
+            Export CSV
+          </button>
+        </div>
       </div>
 
       <div className="bg-slate-900 border border-slate-800 rounded-2xl shadow-xl overflow-hidden">
@@ -52,7 +78,10 @@ export default function Events() {
                   </td>
                 </tr>
               ) : (
-                events.map((event: any) => (
+                events
+                  .filter((e: any) => sourceFilter === 'all' || e.source === sourceFilter || (sourceFilter === 'Linux Agent' && e.source !== 'AWS CloudTrail'))
+                  .filter((e: any) => severityFilter === 'all' || e.severity === severityFilter)
+                  .map((event: any) => (
                   <tr key={event.id} className="hover:bg-slate-800/20 transition-colors">
                     <td className="p-4 text-sm text-slate-400 whitespace-nowrap">
                       {new Date(event.timestamp).toLocaleString()}
