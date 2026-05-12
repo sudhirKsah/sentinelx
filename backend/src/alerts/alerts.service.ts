@@ -5,6 +5,7 @@ import { Alert } from './entities/alert.entity';
 import { EventsGateway } from '../events/events.gateway';
 import { TenantsService } from '../tenants/tenants.service';
 import { MailService } from '../mail/mail.service';
+import { IncidentsService } from '../incidents/incidents.service';
 
 @Injectable()
 export class AlertsService {
@@ -15,6 +16,7 @@ export class AlertsService {
     private readonly eventsGateway: EventsGateway,
     private readonly tenantsService: TenantsService,
     private readonly mailService: MailService,
+    private readonly incidentsService: IncidentsService,
   ) {}
 
   async createAlert(data: Partial<Alert>, orgId: string) {
@@ -28,6 +30,15 @@ export class AlertsService {
     
     // Broadcast real-time
     this.eventsGateway.broadcastAlert(orgId, savedAlert);
+
+    // Auto-escalate high/critical alerts to Incidents
+    if (savedAlert.severity === 'high' || savedAlert.severity === 'critical') {
+      this.incidentsService.createIncident({
+        title: savedAlert.title,
+        description: savedAlert.description,
+        severity: savedAlert.severity,
+      }, orgId).catch(() => {/* best-effort */});
+    }
 
     // Send Email if enabled and severity is high/critical
     if (savedAlert.severity === 'high' || savedAlert.severity === 'critical') {

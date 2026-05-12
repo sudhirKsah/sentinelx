@@ -70,8 +70,10 @@ class FileIntegrityMonitor(BaseMonitor):
             if file_path not in self.file_hashes:
                 self.add_event({
                     'event_type': 'file_created',
-                    'file_path': file_path,
-                    'severity': 'info'
+                    'severity': 'info',
+                    'title': f"New file created: {file_path}",
+                    'description': f"A new file was detected at {file_path}",
+                    'raw_data': {'file_path': file_path}
                 })
         
         # Modified files
@@ -80,10 +82,10 @@ class FileIntegrityMonitor(BaseMonitor):
                 if current_hashes[file_path] != old_hash:
                     self.add_event({
                         'event_type': 'file_modified',
-                        'file_path': file_path,
-                        'old_hash': old_hash,
-                        'new_hash': current_hashes[file_path],
-                        'severity': 'medium'
+                        'severity': 'medium',
+                        'title': f"File modified: {file_path}",
+                        'description': f"File content changed at {file_path}. Hash changed.",
+                        'raw_data': {'file_path': file_path, 'old_hash': old_hash, 'new_hash': current_hashes[file_path]}
                     })
         
         # Deleted files
@@ -91,8 +93,10 @@ class FileIntegrityMonitor(BaseMonitor):
             if file_path not in current_hashes:
                 self.add_event({
                     'event_type': 'file_deleted',
-                    'file_path': file_path,
-                    'severity': 'medium'
+                    'severity': 'medium',
+                    'title': f"File deleted: {file_path}",
+                    'description': f"File was removed from {file_path}",
+                    'raw_data': {'file_path': file_path}
                 })
 
     def _build_baseline(self):

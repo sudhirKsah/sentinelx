@@ -29,9 +29,9 @@ export class EventsService {
       org_id: orgId,
       event_type: data.event_type,
       source: data.source,
-      severity: data.severity,
-      title: data.title,
-      description: data.description,
+      severity: data.severity || 'info',
+      title: data.title || `Agent Event: ${data.event_type}`,
+      description: data.description || 'No description provided.',
       raw_data: data.raw_data,
       timestamp: new Date(data.timestamp || Date.now()),
     });

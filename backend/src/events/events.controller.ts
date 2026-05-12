@@ -11,6 +11,18 @@ export class EventsController {
   async ingestEvent(@Body() body: any, @Request() req: any) {
     // The user's orgId is attached to the request by the JwtStrategy
     const orgId = req.user.orgId;
+    
+    // Handle agent batch payload { events: [...] }
+    if (body.events && Array.isArray(body.events)) {
+      const results: any[] = [];
+      for (const event of body.events) {
+        if (body.agent_id) event.raw_data = { ...event.raw_data, agent_id: body.agent_id };
+        results.push(await this.eventsService.ingestEvent(event, orgId));
+      }
+      return results;
+    }
+    
+    // Handle single event payload
     return this.eventsService.ingestEvent(body, orgId);
   }
 
