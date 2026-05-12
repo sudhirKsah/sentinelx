@@ -2,17 +2,31 @@
 
 import os
 import json
+import base64
 from pathlib import Path
 from typing import Dict, Any
+
+def _parse_jwt(token: str) -> Dict[str, Any]:
+    if not token:
+        return {}
+    try:
+        payload = token.split('.')[1]
+        payload += '=' * (-len(payload) % 4)
+        return json.loads(base64.b64decode(payload).decode('utf-8'))
+    except Exception:
+        return {}
 
 def load_config() -> Dict[str, Any]:
     """Load agent configuration from environment and config file"""
     
+    token = os.getenv('SENTINELX_TOKEN', '')
+    token_data = _parse_jwt(token)
+    
     config = {
         # API Configuration
         'api_url': os.getenv('SENTINELX_API_URL', 'http://localhost:3000'),
-        'api_key': os.getenv('SENTINELX_API_KEY', ''),
-        'org_id': os.getenv('SENTINELX_ORG_ID', ''),
+        'api_key': token or os.getenv('SENTINELX_API_KEY', ''),
+        'org_id': token_data.get('org_id') or os.getenv('SENTINELX_ORG_ID', ''),
         'agent_id': os.getenv('SENTINELX_AGENT_ID', ''),
         
         # Agent Configuration

@@ -42,6 +42,12 @@ class SentinelXAgent:
         """Start all monitoring threads"""
         logger.info("🚀 Starting SentinelX Agent...")
         
+        # Register agent with backend
+        registration_data = self.api_client.register_agent()
+        if not registration_data:
+            logger.error("❌ Failed to register agent with backend. Cannot start monitors.")
+            sys.exit(1)
+            
         try:
             for monitor in self.monitors:
                 monitor.start()
