@@ -9,7 +9,7 @@ interface AuthState {
   mfaRequired: boolean
   login: (email: string, password: string) => Promise<void>
   setupMFA: () => Promise<void>
-  verifyMFA: (token: string) => Promise<void>
+  // verifyMFA: (token: string) => Promise<void>
   logout: () => void
   setUser: (user: any) => void
 }
@@ -44,9 +44,9 @@ export const useAuthStore = create<AuthState>((set) => ({
     // TODO: Implement MFA setup
   },
 
-  verifyMFA: async (token: string) => {
-    // TODO: Implement MFA verification
-  },
+  // verifyMFA: async (token: string) => {
+  //   // TODO: Implement MFA verification
+  // },
 
   logout: () => {
     localStorage.removeItem('token')

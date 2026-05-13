@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useAuthStore } from '../store/authStore';
 
 export default function Infrastructure() {
   const API_URL = import.meta.env.VITE_API_URL;
-  const { token, user } = useAuthStore();
+  const { token } = useAuthStore();
   const [agents, setAgents] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);

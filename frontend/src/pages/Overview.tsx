@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useAuthStore } from '../store/authStore';
 import { io } from 'socket.io-client';
 
 export default function Overview() {
   const API_URL = import.meta.env.VITE_API_URL;
-  const { user, token } = useAuthStore();
+  const { token } = useAuthStore();
   const [events, setEvents] = useState<any[]>([]);
   const [alerts, setAlerts] = useState<any[]>([]);
   const [stats, setStats] = useState({ totalEvents: 0, activeAlerts: 0, openIncidents: 0, activeAgents: 0 });

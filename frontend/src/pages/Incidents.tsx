@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useAuthStore } from '../store/authStore';
 import { io } from 'socket.io-client';
 
@@ -89,7 +89,7 @@ export default function Incidents() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {['open', 'investigating', 'resolved'].map(status => (
           <div key={status} className="flex flex-col bg-slate-900/50 rounded-2xl p-4 border border-slate-800 min-h-[500px]">
-            <h3 className="text-sm font-bold text-slate-400 uppercase tracking-wider mb-4 px-2 capitalize">
+            <h3 className="text-sm font-bold text-slate-400 tracking-wider mb-4 px-2 capitalize">
               {status} <span className="bg-slate-800 text-slate-300 px-2 py-0.5 rounded-full ml-2 text-xs">{incidents.filter(i => i.status === status).length}</span>
             </h3>
             

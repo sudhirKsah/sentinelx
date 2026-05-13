@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 
 export default function Compliance() {
   const [selectedResource, setSelectedResource] = useState<{title: string, desc: string} | null>(null);
