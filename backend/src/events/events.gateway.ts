@@ -56,4 +56,8 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   broadcastAlert(orgId: string, alert: any) {
     this.server.to(`org_${orgId}`).emit('real-time:alert', alert);
   }
+  
+  broadcastIncident(orgId: string, incident: any) {
+    this.server.to(`org_${orgId}`).emit('real-time:incident', incident);
+  }
 }

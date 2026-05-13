@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useAuthStore } from '../store/authStore';
 
 export default function Alerts() {
+  const API_URL = import.meta.env.VITE_API_URL;
   const { token } = useAuthStore();
   const [alerts, setAlerts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -11,7 +12,7 @@ export default function Alerts() {
   }, [token]);
 
   const fetchAlerts = () => {
-    fetch('http://localhost:3000/api/v1/alerts', {
+    fetch(`${API_URL}/api/v1/alerts`, {
       headers: { Authorization: `Bearer ${token}` }
     })
       .then(res => res.json())
@@ -24,7 +25,7 @@ export default function Alerts() {
 
   const handleUpdateStatus = async (alertId: string, newStatus: string) => {
     try {
-      await fetch(`http://localhost:3000/api/v1/alerts/${alertId}/status`, {
+      await fetch(`${API_URL}/api/v1/alerts/${alertId}/status`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',

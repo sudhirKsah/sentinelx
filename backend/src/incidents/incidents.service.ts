@@ -1,13 +1,16 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, Inject, forwardRef } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Incident } from './entities/incident.entity';
+import { EventsGateway } from '../events/events.gateway';
 
 @Injectable()
 export class IncidentsService {
   constructor(
     @InjectRepository(Incident)
     private readonly incidentRepository: Repository<Incident>,
+    @Inject(forwardRef(() => EventsGateway))
+    private readonly eventsGateway: EventsGateway,
   ) {}
 
   async createIncident(data: any, orgId: string) {
@@ -16,7 +19,9 @@ export class IncidentsService {
       org_id: orgId,
       status: 'open',
     });
-    return this.incidentRepository.save(incident);
+    const savedIncident = await this.incidentRepository.save(incident);
+    this.eventsGateway.broadcastIncident(orgId, savedIncident);
+    return savedIncident;
   }
 
   async getIncidentsForOrg(orgId: string, limit = 50) {

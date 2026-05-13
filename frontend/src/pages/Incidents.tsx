@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { useAuthStore } from '../store/authStore';
+import { io } from 'socket.io-client';
 
 export default function Incidents() {
+  const API_URL = import.meta.env.VITE_API_URL;
   const { token } = useAuthStore();
   const [incidents, setIncidents] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -9,7 +11,7 @@ export default function Incidents() {
   const [newIncident, setNewIncident] = useState({ title: '', description: '', severity: 'high' });
 
   const fetchIncidents = () => {
-    fetch('http://localhost:3000/api/v1/incidents', {
+    fetch(`${API_URL}/api/v1/incidents`, {
       headers: { Authorization: `Bearer ${token}` }
     })
       .then(res => res.json())
@@ -22,11 +24,24 @@ export default function Incidents() {
 
   useEffect(() => {
     fetchIncidents();
+
+    // Connect WebSocket
+    const socket = io(`${API_URL}/`, {
+      auth: { token }
+    });
+
+    socket.on('real-time:incident', (newIncident: any) => {
+      setIncidents(prev => [newIncident, ...prev]);
+    });
+
+    return () => {
+      socket.disconnect();
+    };
   }, [token]);
 
   const handleStatusChange = async (incidentId: string, newStatus: string) => {
     try {
-      await fetch(`http://localhost:3000/api/v1/incidents/${incidentId}/status`, {
+      await fetch(`${API_URL}/api/v1/incidents/${incidentId}/status`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
@@ -43,7 +58,7 @@ export default function Incidents() {
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await fetch('http://localhost:3000/api/v1/incidents', {
+      await fetch(`${API_URL}/api/v1/incidents`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

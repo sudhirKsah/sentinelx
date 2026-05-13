@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useAuthStore } from '../store/authStore';
 
 export default function Events() {
+  const API_URL = import.meta.env.VITE_API_URL;
   const { token } = useAuthStore();
   const [events, setEvents] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -11,7 +12,7 @@ export default function Events() {
   const [severityFilter, setSeverityFilter] = useState('all');
 
   useEffect(() => {
-    fetch('http://localhost:3000/api/v1/events', {
+    fetch(`${API_URL}/api/v1/events`, {
       headers: { Authorization: `Bearer ${token}` }
     })
       .then(res => res.json())

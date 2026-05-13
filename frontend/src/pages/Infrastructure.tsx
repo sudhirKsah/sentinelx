@@ -2,13 +2,14 @@ import React, { useEffect, useState } from 'react';
 import { useAuthStore } from '../store/authStore';
 
 export default function Infrastructure() {
+  const API_URL = import.meta.env.VITE_API_URL;
   const { token, user } = useAuthStore();
   const [agents, setAgents] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
 
   useEffect(() => {
-    fetch('http://localhost:3000/api/v1/agents', {
+    fetch(`${API_URL}/api/v1/agents`, {
       headers: { Authorization: `Bearer ${token}` }
     })
       .then(res => res.json())
@@ -124,7 +125,7 @@ export default function Infrastructure() {
                 <p className="text-sm text-slate-300 mb-2">5. Export your organization token:</p>
                 <div className="bg-black rounded-lg p-4 font-mono text-xs text-green-400 overflow-x-auto">
                   export SENTINELX_TOKEN="{token}"<br/>
-                  export SENTINELX_API_URL="http://localhost:3000"
+                  export SENTINELX_API_URL="{API_URL}"
                 </div>
               </div>
 

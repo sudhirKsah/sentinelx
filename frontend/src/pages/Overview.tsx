@@ -3,6 +3,7 @@ import { useAuthStore } from '../store/authStore';
 import { io } from 'socket.io-client';
 
 export default function Overview() {
+  const API_URL = import.meta.env.VITE_API_URL;
   const { user, token } = useAuthStore();
   const [events, setEvents] = useState<any[]>([]);
   const [alerts, setAlerts] = useState<any[]>([]);
@@ -11,7 +12,7 @@ export default function Overview() {
 
   useEffect(() => {
     // Fetch stats
-    fetch('http://localhost:3000/api/v1/analytics/dashboard', {
+    fetch(`${API_URL}/api/v1/analytics/dashboard`, {
       headers: { Authorization: `Bearer ${token}` }
     })
       .then(res => res.json())
@@ -19,7 +20,7 @@ export default function Overview() {
       .catch(err => console.error(err));
 
     // Fetch initial events
-    fetch('http://localhost:3000/api/v1/events?limit=20', {
+    fetch(`${API_URL}/api/v1/events?limit=20`, {
       headers: { Authorization: `Bearer ${token}` }
     })
       .then(res => res.json())
@@ -30,7 +31,7 @@ export default function Overview() {
       .catch(err => console.error('Error fetching events:', err));
 
     // Connect WebSocket
-    const socket = io('http://localhost:3000', {
+    const socket = io(`${API_URL}/`, {
       auth: { token }
     });
 

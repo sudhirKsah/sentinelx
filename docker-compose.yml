@@ -5,15 +5,15 @@ services:
     container_name: sentinelx-postgres
     environment:
       POSTGRES_DB: ${DB_NAME:-sentinelx}
-      POSTGRES_USER: ${DB_USER:-postgres}
-      POSTGRES_PASSWORD: ${DB_PASSWORD:-password}
+      POSTGRES_USER: ${DB_USER:-sentinelx}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-sentinelx}
     ports:
       - "${DB_PORT:-5432}:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./backend/src/database/migrations:/docker-entrypoint-initdb.d
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-postgres}"]
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-sentinelx}"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -90,12 +90,13 @@ services:
       NODE_ENV: ${NODE_ENV:-development}
       DB_HOST: postgres
       DB_PORT: ${DB_PORT:-5432}
-      DB_USER: ${DB_USER:-postgres}
-      DB_PASSWORD: ${DB_PASSWORD:-password}
+      DB_USER: ${DB_USER:-sentinelx}
+      DB_PASSWORD: ${DB_PASSWORD:-sentinelx}
       DB_NAME: ${DB_NAME:-sentinelx}
       JWT_SECRET: ${JWT_SECRET:-dev-secret-key-change-in-prod}
       JWT_EXPIRATION: ${JWT_EXPIRATION:-24h}
       GEMINI_API_KEY: ${GEMINI_API_KEY}
+      RESEND_API_KEY: ${RESEND_API_KEY}
       AWS_REGION: ${AWS_REGION:-us-east-1}
       LOG_LEVEL: ${LOG_LEVEL:-info}
     depends_on:

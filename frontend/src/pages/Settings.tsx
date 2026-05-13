@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useAuthStore } from '../store/authStore';
 
 export default function Settings() {
+  const API_URL = import.meta.env.VITE_API_URL;
   const { token, user } = useAuthStore();
   const [awsKey, setAwsKey] = useState('');
   const [awsSecret, setAwsSecret] = useState('');
@@ -16,7 +17,7 @@ export default function Settings() {
 
   React.useEffect(() => {
     // Fetch current settings
-    fetch('http://localhost:3000/api/v1/tenants/me', {
+    fetch(`${API_URL}/api/v1/tenants/me`, {
       headers: { Authorization: `Bearer ${token}` }
     })
       .then(res => res.json())
@@ -33,7 +34,7 @@ export default function Settings() {
     e.preventDefault();
     setStatus('Saving...');
     try {
-      const res = await fetch('http://localhost:3000/api/v1/integrations/aws', {
+      const res = await fetch(`${API_URL}/api/v1/integrations/aws`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -57,7 +58,7 @@ export default function Settings() {
     e.preventDefault();
     setNotifStatus('Saving...');
     try {
-      const res = await fetch('http://localhost:3000/api/v1/tenants/me/settings', {
+      const res = await fetch(`${API_URL}/api/v1/tenants/me/settings`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',

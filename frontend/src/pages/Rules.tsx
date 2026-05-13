@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useAuthStore } from '../store/authStore';
 
 export default function Rules() {
+  const API_URL = import.meta.env.VITE_API_URL;
   const { token } = useAuthStore();
   const [rules, setRules] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -9,7 +10,7 @@ export default function Rules() {
   const [newRule, setNewRule] = useState({ name: '', rule_type: 'regex', rule_config: { pattern: '' } });
 
   const fetchRules = () => {
-    fetch('http://localhost:3000/api/v1/detection/rules', {
+    fetch(`${API_URL}/api/v1/detection/rules`, {
       headers: { Authorization: `Bearer ${token}` }
     })
       .then(res => res.json())
@@ -27,7 +28,7 @@ export default function Rules() {
   const handleCreateRule = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await fetch('http://localhost:3000/api/v1/detection/rules', {
+      await fetch(`${API_URL}/api/v1/detection/rules`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify(newRule)
@@ -42,7 +43,7 @@ export default function Rules() {
 
   const handleToggleStatus = async (id: string, currentStatus: boolean) => {
     try {
-      await fetch(`http://localhost:3000/api/v1/detection/rules/${id}/status`, {
+      await fetch(`${API_URL}/api/v1/detection/rules/${id}/status`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify({ enabled: !currentStatus })

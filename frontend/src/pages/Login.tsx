@@ -3,6 +3,7 @@ import { useAuthStore } from '../store/authStore';
 import { useNavigate } from 'react-router-dom';
 
 export default function Login() {
+  const API_URL = import.meta.env.VITE_API_URL;
   const navigate = useNavigate();
   const { login } = useAuthStore();
   const [email, setEmail] = useState('');
@@ -16,7 +17,7 @@ export default function Login() {
     setError('');
     try {
       if (isRegistering) {
-        const response = await fetch('http://localhost:3000/api/v1/auth/register', {
+        const response = await fetch(`${API_URL}/api/v1/auth/register`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email, password, orgName }),

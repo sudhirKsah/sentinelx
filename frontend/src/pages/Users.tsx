@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useAuthStore } from '../store/authStore';
 
 export default function Users() {
+  const API_URL = import.meta.env.VITE_API_URL;
   const { token, user } = useAuthStore();
   const [users, setUsers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -9,7 +10,7 @@ export default function Users() {
   const [newEmail, setNewEmail] = useState('');
 
   const fetchUsers = () => {
-    fetch('http://localhost:3000/api/v1/tenants/me', {
+    fetch(`${API_URL}/api/v1/tenants/me`, {
       headers: { Authorization: `Bearer ${token}` }
     })
       .then(res => res.json())
@@ -27,7 +28,7 @@ export default function Users() {
   const handleInvite = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await fetch('http://localhost:3000/api/v1/tenants/invite', {
+      await fetch(`${API_URL}/api/v1/tenants/invite`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify({ email: newEmail })
