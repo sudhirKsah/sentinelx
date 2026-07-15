@@ -1,4 +1,4 @@
-# 🛡️ SentinelX: Multi-Cloud & Endpoint Security SaaS
+# 🛡️ SentinelX: Multi-Cloud & Endpoint Security
 
 <!-- ![SentinelX Banner](https://via.placeholder.com/1200x300/0f172a/3b82f6?text=SentinelX+Security+Platform) -->
 
