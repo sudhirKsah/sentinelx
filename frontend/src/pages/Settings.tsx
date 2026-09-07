@@ -7,23 +7,32 @@ export default function Settings() {
   const [awsKey, setAwsKey] = useState('');
   const [awsSecret, setAwsSecret] = useState('');
   const [awsRegion, setAwsRegion] = useState('ap-south-1');
-  
+  const [awsConfigured, setAwsConfigured] = useState(false);
+
+  // GCP Integration
+  const [gcpProjectId, setGcpProjectId] = useState('');
+  const [gcpServiceKey, setGcpServiceKey] = useState('');
+  const [gcpStatus, setGcpStatus] = useState('');
+  const [gcpConfigured, setGcpConfigured] = useState(false);
+
   // Notification Settings
   const [emailEnabled, setEmailEnabled] = useState(false);
   const [alertEmail, setAlertEmail] = useState('');
-  
+
   const [status, setStatus] = useState('');
   const [notifStatus, setNotifStatus] = useState('');
 
   React.useEffect(() => {
-    // Fetch current settings
+    // Fetch current settings (sensitive fields are masked server-side)
     fetch(`${API_URL}/api/v1/tenants/me`, {
       headers: { Authorization: `Bearer ${token}` }
     })
       .then(res => res.json())
       .then(data => {
-        if (data.aws_access_key) setAwsKey(data.aws_access_key);
+        if (data.aws_configured) setAwsConfigured(true);
         if (data.aws_region) setAwsRegion(data.aws_region);
+        if (data.gcp_configured) setGcpConfigured(true);
+        if (data.gcp_project_id) setGcpProjectId(data.gcp_project_id);
         if (data.email_alerts_enabled) setEmailEnabled(data.email_alerts_enabled);
         if (data.alert_email_address) setAlertEmail(data.alert_email_address);
       })
@@ -33,6 +42,25 @@ export default function Settings() {
   const handleAwsSave = async (e: React.FormEvent) => {
     e.preventDefault();
     setStatus('Saving...');
+
+    // If already configured and the user didn't enter new key/secret values,
+    // only persist the region via the tenant settings endpoint (don't wipe keys).
+    if (awsConfigured && !awsKey && !awsSecret) {
+      try {
+        const res = await fetch(`${API_URL}/api/v1/tenants/me/settings`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+          body: JSON.stringify({ aws_region: awsRegion })
+        });
+        if (!res.ok) throw new Error('Failed to save region');
+        setStatus('AWS region updated.');
+        setTimeout(() => setStatus(''), 3000);
+      } catch (err: any) {
+        setStatus(`Error: ${err.message}`);
+      }
+      return;
+    }
+
     try {
       const res = await fetch(`${API_URL}/api/v1/integrations/aws`, {
         method: 'POST',
@@ -48,9 +76,42 @@ export default function Settings() {
       });
       if (!res.ok) throw new Error('Failed to save integration');
       setStatus('AWS Integration Saved Successfully!');
+      setAwsConfigured(true);
+      setAwsKey('');
+      setAwsSecret('');
       setTimeout(() => setStatus(''), 3000);
     } catch (err: any) {
       setStatus(`Error: ${err.message}`);
+    }
+  };
+
+  const handleGcpSave = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setGcpStatus('Saving...');
+    try {
+      // Validate JSON before sending
+      JSON.parse(gcpServiceKey);
+      const res = await fetch(`${API_URL}/api/v1/integrations/gcp`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          serviceAccountKey: gcpServiceKey,
+          projectId: gcpProjectId
+        })
+      });
+      if (!res.ok) {
+        const errText = await res.text();
+        throw new Error(errText || 'Failed to save GCP integration');
+      }
+      setGcpStatus('GCP Integration Saved Successfully!');
+      setGcpConfigured(true);
+      setGcpServiceKey('');
+      setTimeout(() => setGcpStatus(''), 3000);
+    } catch (err: any) {
+      setGcpStatus(`Error: ${err.message}`);
     }
   };
 
@@ -112,7 +173,15 @@ export default function Settings() {
       <div className="bg-slate-900 border border-slate-800 rounded-2xl shadow-xl overflow-hidden">
         <div className="p-6 border-b border-slate-800 flex justify-between items-center">
           <div>
-            <h2 className="text-lg font-bold text-white">AWS Integration</h2>
+            <h2 className="text-lg font-bold text-white flex items-center gap-3">
+              AWS Integration
+              {awsConfigured && (
+                <span className="inline-flex items-center gap-1.5 text-xs font-medium text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-full">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                  Configured
+                </span>
+              )}
+            </h2>
             <p className="text-sm text-slate-500">Connect AWS CloudTrail for continuous monitoring</p>
           </div>
           <span className="text-4xl">☁️</span>
@@ -124,24 +193,29 @@ export default function Settings() {
                 {status}
               </div>
             )}
+            {awsConfigured && (
+              <p className="text-xs text-slate-500 bg-slate-800/50 border border-slate-700/50 rounded p-2">
+                AWS credentials are on file and encrypted at rest. Leave the fields blank to keep the current key, or enter new values to rotate.
+              </p>
+            )}
             <div>
               <label className="block text-sm font-medium text-slate-300 mb-1">Access Key ID</label>
-              <input 
-                type="text" 
+              <input
+                type="text"
                 value={awsKey}
                 onChange={e => setAwsKey(e.target.value)}
                 className="w-full bg-slate-800 border border-slate-700 text-white rounded-lg px-4 py-2 focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
-                placeholder="AKIAIOSFODNN7EXAMPLE"
+                placeholder={awsConfigured ? '•••••••• (enter new key to rotate)' : 'AKIAIOSFODNN7EXAMPLE'}
               />
             </div>
             <div>
               <label className="block text-sm font-medium text-slate-300 mb-1">Secret Access Key</label>
-              <input 
-                type="password" 
+              <input
+                type="password"
                 value={awsSecret}
                 onChange={e => setAwsSecret(e.target.value)}
                 className="w-full bg-slate-800 border border-slate-700 text-white rounded-lg px-4 py-2 focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
-                placeholder="••••••••••••••••••••••••••••••••"
+                placeholder={awsConfigured ? '•••••••• (enter new key to rotate)' : '••••••••••••••••••••••••••••••••'}
               />
             </div>
             <div>
@@ -161,6 +235,68 @@ export default function Settings() {
             <div className="pt-2">
               <button type="submit" className="bg-blue-600 hover:bg-blue-500 text-white font-medium py-2 px-6 rounded-lg transition-colors">
                 Save & Connect
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      {/* GCP Integration */}
+      <div className="bg-slate-900 border border-slate-800 rounded-2xl shadow-xl overflow-hidden">
+        <div className="p-6 border-b border-slate-800 flex justify-between items-center">
+          <div>
+            <h2 className="text-lg font-bold text-white flex items-center gap-3">
+              GCP Integration
+              {gcpConfigured && (
+                <span className="inline-flex items-center gap-1.5 text-xs font-medium text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-full">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                  Configured
+                </span>
+              )}
+            </h2>
+            <p className="text-sm text-slate-500">Connect Google Cloud Audit Logs (Admin Activity &amp; Data Access) for continuous monitoring</p>
+          </div>
+          <span className="text-4xl">☁️</span>
+        </div>
+        <div className="p-6">
+          <form onSubmit={handleGcpSave} className="space-y-4">
+            {gcpStatus && (
+              <div className={`p-3 rounded text-sm ${gcpStatus.includes('Error') ? 'bg-red-500/10 text-red-400 border border-red-500/20' : 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'}`}>
+                {gcpStatus}
+              </div>
+            )}
+            {gcpConfigured && (
+              <p className="text-xs text-slate-500 bg-slate-800/50 border border-slate-700/50 rounded p-2">
+                GCP credentials are on file and encrypted at rest. Paste a new service account key to rotate.
+              </p>
+            )}
+            <div>
+              <label className="block text-sm font-medium text-slate-300 mb-1">GCP Project ID</label>
+              <input
+                type="text"
+                value={gcpProjectId}
+                onChange={e => setGcpProjectId(e.target.value)}
+                className="w-full bg-slate-800 border border-slate-700 text-white rounded-lg px-4 py-2 focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                placeholder="my-gcp-project-123"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-slate-300 mb-1">Service Account Key (JSON)</label>
+              <textarea
+                required
+                value={gcpServiceKey}
+                onChange={e => setGcpServiceKey(e.target.value)}
+                rows={8}
+                className="w-full bg-slate-800 border border-slate-700 text-white rounded-lg px-4 py-2 focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all font-mono text-xs"
+                placeholder={gcpConfigured ? '{ ...paste new service account key to rotate... }' : '{ "type": "service_account", "project_id": "...", "private_key": "...", "client_email": "..." }'}
+              />
+              <p className="text-xs text-slate-500 mt-1">
+                Paste the full contents of the service account JSON key file. Required role: <span className="font-mono">roles/logging.viewer</span> (or <span className="font-mono">roles/logging.privateLogViewer</span> for Data Access logs).
+              </p>
+            </div>
+            <div className="pt-2">
+              <button type="submit" className="bg-blue-600 hover:bg-blue-500 text-white font-medium py-2 px-6 rounded-lg transition-colors">
+                Save &amp; Connect
               </button>
             </div>
           </form>

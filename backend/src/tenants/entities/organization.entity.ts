@@ -44,6 +44,14 @@ export class Organization {
   @Column({ nullable: true, default: 'ap-south-1' })
   aws_region?: string;
 
+  // GCP Integration Settings
+  // Stored as the raw JSON service account key (contains client_email, private_key, project_id).
+  @Column({ type: 'text', nullable: true })
+  gcp_service_account_key?: string;
+
+  @Column({ nullable: true })
+  gcp_project_id?: string;
+
   // Notification Settings
   @Column({ default: false })
   email_alerts_enabled!: boolean;

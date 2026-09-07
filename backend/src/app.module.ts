@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { CommonModule } from './common/common.module';
 import { AuthModule } from './auth/auth.module';
 import { TenantsModule } from './tenants/tenants.module';
 import { CloudIntegrationsModule } from './cloud-integrations/cloud-integrations.module';
@@ -20,6 +21,7 @@ import { MailModule } from './mail/mail.module';
       isGlobal: true,
       envFilePath: '.env',
     }),
+    CommonModule,
     TypeOrmModule.forRootAsync({
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => ({

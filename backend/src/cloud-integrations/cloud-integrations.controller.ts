@@ -12,6 +12,7 @@ export class CloudIntegrationsController {
     return this.integrationsService.getIntegrationStatus(req.user.orgId);
   }
 
+  // ─────────── AWS ───────────
   @Post('aws')
   async setupAwsIntegration(@Body() body: any, @Request() req: any) {
     // Body expects: accessKeyId, secretAccessKey, region
@@ -21,6 +22,19 @@ export class CloudIntegrationsController {
   @Post('aws/sync')
   async syncAws(@Request() req: any) {
     const count = await this.integrationsService.syncAwsLogs(req.user.orgId);
-    return { success: true, events_synced: count };
+    return { success: true, provider: 'aws', events_synced: count };
+  }
+
+  // ─────────── GCP ───────────
+  @Post('gcp')
+  async setupGcpIntegration(@Body() body: { serviceAccountKey: string; projectId: string }, @Request() req: any) {
+    // Body expects: serviceAccountKey (raw JSON string of the service account key file), projectId
+    return this.integrationsService.addGcpIntegration(req.user.orgId, body);
+  }
+
+  @Post('gcp/sync')
+  async syncGcp(@Request() req: any) {
+    const count = await this.integrationsService.syncGcpLogs(req.user.orgId);
+    return { success: true, provider: 'gcp', events_synced: count };
   }
 }
