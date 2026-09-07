@@ -7,10 +7,12 @@ import { EventsController } from './events.controller';
 import { EventsGateway } from './events.gateway';
 import { Event } from './entities/event.entity';
 import { AlertsModule } from '../alerts/alerts.module';
+import { DetectionModule } from '../detection/detection.module';
 
 @Module({
   imports: [
     forwardRef(() => AlertsModule),
+    DetectionModule,
     TypeOrmModule.forFeature([Event]),
     JwtModule.registerAsync({
       imports: [ConfigModule],
