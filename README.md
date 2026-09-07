@@ -11,11 +11,12 @@ Built as a highly scalable microservice architecture, SentinelX leverages the **
 ## 🚀 Key Features
 
 *   **🧠 AI-Powered Threat Detection:** Integrates directly with the Gemini 2.5 Flash API to analyze complex attack vectors (like Ransomware behavior or multi-stage privilege escalation) in real-time.
-*   **☁️ Cloud Native Auditing:** Deep integration with **AWS CloudTrail** to detect:
-    *   S3 Bucket modifications (Ransomware/Data Exfiltration)
-    *   IAM Privilege Escalation
+*   **☁️ Multi-Cloud Native Auditing:** Deep integration with both **AWS CloudTrail** and **Google Cloud Audit Logs** to detect:
+    *   S3 / Cloud Storage Bucket modifications (Ransomware/Data Exfiltration)
+    *   IAM Privilege Escalation & Service Account key creation
     *   Suspicious Logins and Reconnaissance Activity
     *   Security Group / Firewall downgrades
+    *   Project / Service Account deletion (defense evasion)
 *   **🖥️ Endpoint Monitoring (Agent):** A lightweight Python agent deployed to your Linux hosts that actively monitors:
     *   File Integrity (FIM)
     *   Process Execution Anomalies
@@ -42,22 +43,31 @@ SentinelX is broken down into four core components:
 ```mermaid
 graph TD
     A[Linux Endpoint Agent] -->|HTTPS POST| B(NestJS Backend API)
-    C[AWS CloudTrail] -->|Polling/Webhooks| B
+    C[AWS CloudTrail] -->|Polling| B
+    G[GCP Cloud Audit Logs] -->|Polling| B
     B -->|WebSocket| D{React Dashboard}
     B -->|PostgreSQL| E[(Database)]
     B <-->|Gemini AI Scoring| F((Google Gemini API))
 ```
 
 ### 🎯 How Detection Rules Work
-SentinelX empowers users to create custom **Detection Rules** directly from the frontend dashboard. 
-1. **Creation**: A SOC analyst navigates to the *Rules* page and creates a rule (e.g., `Regex Match`).
-2. **Usage**: These rules are evaluated by the backend `DetectionService`. Whenever an event is ingested, the engine iterates through active rules for that Organization.
+SentinelX empowers users to create custom **Detection Rules** directly from the frontend dashboard.
+1. **Creation**: A SOC analyst navigates to the *Rules* page and creates a rule, choosing one of the supported rule types.
+2. **Usage**: These rules are evaluated by the backend `DetectionService`. Whenever an event is ingested, the engine iterates through all **enabled** rules for that Organization and evaluates each one. Matched rules immediately generate an Alert (in addition to the Gemini AI analysis run on high/critical events).
 3. **Action**: If an event matches a rule's configuration, an Alert is generated.
+
+**Supported Rule Types:**
+| Type | Config | Description |
+|------|--------|-------------|
+| `regex` | `{ field, pattern, flags }` | Regex match against any event field (default `description`). Example: `{ field: "description", pattern: "nmap.*" }` |
+| `exact_match` | `{ field, value }` | Equality check on a flat or dotted-nested field. Example: `{ field: "event_type", value: "gcp:audit:SetIamPolicy" }` |
+| `threshold` | `{ field, operator, value }` | Numeric comparison (`gt`, `gte`, `lt`, `lte`, `eq`) on a field. Example: `{ field: "raw_data.bytes", operator: "gt", value: 10485760 }` |
+| `severity` | `{ value }` | Matches events whose severity equals the configured value. Example: `{ value: "critical" }` |
 
 **Example Rule:**
 *   **Name:** "Detect Nmap Scans"
-*   **Type:** Regex
-*   **Configuration:** `pattern: "nmap.*"`
+*   **Type:** `regex`
+*   **Configuration:** `{ field: "description", pattern: "nmap.*", flags: "i" }`
 *   **Result:** Any process execution event containing "nmap" immediately triggers a security alert.
 
 ### 🔗 Event Correlation & Incident Management
@@ -90,6 +100,10 @@ This is the fastest way to get the entire microservice stack running.
    JWT_SECRET=super-secret-jwt-key
    JWT_EXPIRATION=24h
    GEMINI_API_KEY=your_gemini_api_key_here
+
+   # Credential Encryption (AES-256-GCM at rest for AWS/GCP keys)
+   # Generate with: node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+   ENCRYPTION_KEY=your_64_char_hex_encryption_key
    
    # Frontend Configuration
    VITE_API_URL=http://localhost:3000
@@ -162,11 +176,27 @@ python -m sentinelx_agent.main
 
 ## 🛡️ Cloud Threat Detection Rules
 
-SentinelX automatically categorizes AWS CloudTrail events into severities. High/Critical events are passed to Gemini AI for final confirmation.
+SentinelX automatically categorizes cloud audit events into severities. High/Critical events are passed to Gemini AI for final confirmation.
 
+### AWS CloudTrail
 *   **Critical Severity:** `DeleteBucket`, `PutBucketPolicy`, `PutBucketPublicAccessBlock`, `CreateUser`, `StopLogging`, `DeleteTrail`
 *   **High Severity:** `ConsoleLogin`, `AssumeRole`, `AuthorizeSecurityGroupIngress`, `RunInstances`
 *   **Medium/Info Severity:** `DescribeInstances`, `ListBuckets`, routine API calls.
+
+### Google Cloud Audit Logs
+*   **Critical Severity:** `DeleteBucket`, `DeleteProject`, `DeleteServiceAccount`, `CreateServiceAccount`, `CreateServiceAccountKey`, `SetIamPolicy`, `DeleteFirewall`, `DeleteSink`, `UpdateSink`
+*   **High Severity:** `Insert`, `Create`, `Update`, `Patch`, `SetBucketPolicy`, `AddMember`, `RemoveMember`, login/token methods
+*   **Medium/Info Severity:** `List`, `Get`, `Describe`, `AggregatedList` (reconnaissance activity)
+
+### GCP Setup (Service Account)
+To enable GCP monitoring, create a service account in your GCP project with the **`roles/logging.viewer`** role (or `roles/logging.privateLogViewer` if you also want Data Access logs), generate a JSON key, and paste it (along with the Project ID) into the *Settings → GCP Integration* panel. The backend polls Cloud Audit Logs every 3 minutes via the Cloud Logging API.
+
+### 🔐 Credential Encryption at Rest
+All cloud credentials (AWS access key, AWS secret key, GCP service account JSON) are encrypted with **AES-256-GCM** before being written to PostgreSQL. The encryption key is derived from the `ENCRYPTION_KEY` environment variable via scrypt, with a per-credential random salt and IV. Decryption happens only in-memory at poll time and is never returned to the frontend (the Settings page only shows a "Configured" badge and masked previews).
+
+*   **Required env var:** `ENCRYPTION_KEY` (any strong passphrase; a 32-byte hex secret is recommended)
+*   **Generate one with:** `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"`
+*   **Warning:** If you rotate `ENCRYPTION_KEY` after credentials are already stored, existing rows must be re-saved (re-encrypted) with the new key. Keep backups of `ENCRYPTION_KEY` — losing it makes stored credentials unrecoverable.
 
 ## 🤝 Contributing
 This project was developed as a comprehensive Cloud Computing Major Project. Contributions, bug reports, and feature requests are welcome!
