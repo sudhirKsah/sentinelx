@@ -57,9 +57,14 @@ eval $(minikube docker-env)
   minikube service frontend-service -n sentinelx
   ```
 
-- **Backend:** The backend is accessible within the cluster at `http://backend-service:3000`.
+- **Backend:** The backend is accessible within the cluster at `http://backend:3000`.
 
 ## Notes
 
 - The images are tagged as `latest` and `imagePullPolicy` is set to `IfNotPresent`.
 - The secrets in `secrets.yaml` should be updated with actual values for a production environment.
+- **`ENCRYPTION_KEY`** (in `secrets.yaml`) is required — it's the AES-256-GCM key used to encrypt cloud credentials (AWS/GCP) at rest. Generate one with:
+  ```bash
+  node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+  ```
+- For production, prefer a managed secret (AWS Secrets Manager, GCP Secret Manager, or `kubectl create secret` with `--from-literal`) over committing `secrets.yaml` with real values.

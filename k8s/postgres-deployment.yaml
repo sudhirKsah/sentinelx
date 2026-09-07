@@ -37,6 +37,16 @@ spec:
           volumeMounts:
             - name: postgres-storage
               mountPath: /var/lib/postgresql/data
+          readinessProbe:
+            exec:
+              command: ["pg_isready", "-U", "sentinelx"]
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          livenessProbe:
+            exec:
+              command: ["pg_isready", "-U", "sentinelx"]
+            initialDelaySeconds: 30
+            periodSeconds: 10
       volumes:
         - name: postgres-storage
           persistentVolumeClaim:
