@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useAuthStore } from '../store/authStore';
 
 export default function Settings() {
-  const API_URL = import.meta.env.VITE_API_URL;
+  const API_URL = import.meta.env.VITE_API_URL || '';
   const { token, user } = useAuthStore();
   const [awsKey, setAwsKey] = useState('');
   const [awsSecret, setAwsSecret] = useState('');

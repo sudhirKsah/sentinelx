@@ -15,6 +15,7 @@ docs/
 ARCHITECTURE.md
 IMPLEMENTATION_ROADMAP.md
 setup.sh
+ICCIS paper/
 
 # IDE
 .vscode/

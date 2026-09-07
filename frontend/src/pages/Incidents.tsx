@@ -3,7 +3,7 @@ import { useAuthStore } from '../store/authStore';
 import { io } from 'socket.io-client';
 
 export default function Incidents() {
-  const API_URL = import.meta.env.VITE_API_URL;
+  const API_URL = import.meta.env.VITE_API_URL || '';
   const { token } = useAuthStore();
   const [incidents, setIncidents] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);

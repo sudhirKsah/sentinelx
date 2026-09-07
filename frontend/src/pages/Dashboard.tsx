@@ -3,7 +3,7 @@ import { useAuthStore } from '../store/authStore';
 import { io } from 'socket.io-client';
 
 export default function Dashboard() {
-  const API_URL = import.meta.env.VITE_API_URL;
+  const API_URL = import.meta.env.VITE_API_URL || '';
   const { user, token, logout } = useAuthStore();
   const [events, setEvents] = useState<any[]>([]);
   const [alerts, setAlerts] = useState<any[]>([]);
